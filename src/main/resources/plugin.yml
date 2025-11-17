@@ -1,5 +1,5 @@
 name: AllDisplayName
-version: '1.3'
+version: '1.4'
 main: org.bunubbv.allDisplayName.AllDisplayName
 api-version: '1.21'
 author: "bunubbv"
