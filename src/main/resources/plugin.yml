@@ -1,6 +1,6 @@
 name: AllDisplayName
-version: '1.4'
+version: '1.5'
 main: org.bunubbv.allDisplayName.AllDisplayName
 api-version: '1.21'
 author: "bunubbv"
-website: "https://github.com/bunubbv"
+website: "https://github.com/bunubbv/AllDisplayName"
