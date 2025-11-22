@@ -1,6 +1,32 @@
-name: AllDisplayName
-version: '1.5'
-main: org.bunubbv.allDisplayName.AllDisplayName
+name: ADN
+version: '2.1.2'
+main: com.bunubbv.adn.adn
 api-version: '1.21'
 author: "bunubbv"
-website: "https://github.com/bunubbv/AllDisplayName"
+website: "https://github.com/bunubbv/ADN"
+
+commands:
+  adn:
+    usage: /adn
+permissions:
+  adn.use:
+    default: true
+  adn.set.self:
+    default: true
+  adn.set.user:
+    default: op
+  adn.save:
+    default: true
+  adn.reset.self:
+    default: true
+  adn.reset.user:
+    default: op
+  adn.remove:
+    default: true
+  adn.reload:
+    default: op
+  adn.format:
+    default: true
+
+softdepend:
+  - ProtocolLib

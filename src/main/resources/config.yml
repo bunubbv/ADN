@@ -1,0 +1,7 @@
+save-type: file
+max-saves: 5
+nick-prefix: ''
+nick-length: 30
+nick-protection: -1
+nick-pattern: '[가-힣a-zA-Z0-9]+'
+tablist-nick: true

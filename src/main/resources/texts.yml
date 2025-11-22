@@ -1,0 +1,36 @@
+plugin:
+  prefix: "[ <aqua>ADN<white> ]"
+  help-message: "/adn <save|set|reload|remove|reset>"
+  shown-help: "<prefix> <target><reset><yellow> has been shown the help screen"
+  config-reloaded: "<prefix> <green>Config reloaded successfully!"
+error:
+  invalid:
+    tags: "<prefix> <red>You used a formatting tag you do not have permission to use."
+    nick: "<prefix> <red>Invalid nickname. It must match: <value>"
+    nick-length: "<prefix> <red>Nickname is too long. Max length is <value>"
+    nick-pattern: "<prefix> <red>'nick-pattern' in config.yml is missing or malformed."
+    command: "<prefix> <red>Invalid command."
+    player: "<prefix> <red>Invalid player."
+  args:
+    not-provided: "<prefix> <red>No arguments provided."
+    too-many: "<prefix> <red>Too many arguments provided."
+  nick:
+    is-null: "<prefix> <red>Nickname is null. Check your formatting."
+    remove-failure: "<prefix> <red>Failed to remove the nickname."
+    name-nonexistent: "<prefix> <red>That nickname does not exist."
+    save-failure: "<prefix> <red>Failed to save the nickname."
+    too-many-to-save: "<prefix> <red>You have reached the limit of saved nicknames. Remove one with /adn remove <value>"
+    other-players-nick: "<prefix> <red>You cannot use <value><reset><red>; that name belongs to another player."
+  no-permission: "<prefix> <red>You don't have permission to use this command."
+  must-be-player: "<prefix> <red>This command can only be used by players."
+nick:
+  set:
+    self: "<prefix> Your nickname has been updated to <value><reset>."
+    user: "<prefix> Updated <target>'s nickname to <value><reset>."
+    by-user: "<prefix> <gray><initiator> changed your nickname to <value><reset>."
+  save: "<prefix> The nickname <value> has been saved."
+  reset:
+    self: "<prefix> Your nickname has been reset."
+    user: "<prefix> Reset <target>'s nickname."
+    by-user: "<prefix> <gray>Your nickname was reset by <initiator>."
+  remove: "<prefix> The nickname <value> has been removed."
