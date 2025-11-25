@@ -1,5 +1,5 @@
 plugin:
-  prefix: "[ <aqua>ADN<white> ]"
+  prefix: "<gray><b>[ADN]</b></gray>"
   help-message: "/adn <save|set|reload|remove|reset>"
   shown-help: "<prefix> <target><reset><yellow> has been shown the help screen"
   config-reloaded: "<prefix> <green>Config reloaded successfully!"

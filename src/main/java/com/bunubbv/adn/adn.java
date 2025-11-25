@@ -113,7 +113,7 @@ public final class adn extends JavaPlugin implements Listener {
     private void loadLocale() {
         File localeFile = new File(getDataFolder(), "texts.yml");
         localeConfig = YamlConfiguration.loadConfiguration(localeFile);
-        prefixRaw = localeConfig.getString("plugin.prefix", "<gray>[ADN]</gray> ");
+        prefixRaw = localeConfig.getString("plugin.prefix", "<gray><b>[ADN]</b></gray>");
     }
 
     private void reloadLocale() {
@@ -436,26 +436,32 @@ public final class adn extends JavaPlugin implements Listener {
 
         String sub = args[0].toLowerCase(Locale.ROOT);
 
-        switch (sub) {
-            case "set":
+        return switch (sub) {
+            case "set" -> {
                 handleSet(sender, args);
-                return true;
-            case "save":
+                yield true;
+            }
+            case "save" -> {
                 handleSave(sender, args);
-                return true;
-            case "reset":
+                yield true;
+            }
+            case "reset" -> {
                 handleReset(sender, args);
-                return true;
-            case "remove":
+                yield true;
+            }
+            case "remove" -> {
                 handleDelete(sender, args);
-                return true;
-            case "reload":
+                yield true;
+            }
+            case "reload" -> {
                 handleReload(sender);
-                return true;
-            default:
+                yield true;
+            }
+            default -> {
                 sendLocale(sender, "error.invalid.command");
-                return true;
-        }
+                yield true;
+            }
+        };
     }
 
     private void handleSet(CommandSender sender, String[] args) {
@@ -666,17 +672,17 @@ public final class adn extends JavaPlugin implements Listener {
                 }
 
                 if (DEBUG) {
-                    getLogger().info("---- PACKET MESSAGE (ORIGINAL PLAIN) ---- " + PLAIN.serialize(root));
+                    getLogger().info("---- PACKET (ORIGINAL) ---- " + PLAIN.serialize(root));
                 }
 
-                Component modified = replaceAllPlayerNames(root);
+                Component modified = replaceNamesInTranslatables(root);
 
                 if (modified.equals(root)) {
                     return;
                 }
 
                 if (DEBUG) {
-                    getLogger().info("---- PACKET MESSAGE (MODIFIED PLAIN) ---- " + PLAIN.serialize(modified));
+                    getLogger().info("---- PACKET (MODIFIED) ---- " + PLAIN.serialize(modified));
                 }
 
                 writeComponentToPacket(packet, modified);
@@ -748,26 +754,32 @@ public final class adn extends JavaPlugin implements Listener {
         return result;
     }
 
-    private Component replaceAllPlayerNames(Component original) {
+    private Component replaceNamesInTranslatables(Component original) {
+        return replaceNamesInTranslatables(original, false);
+    }
+
+    private Component replaceNamesInTranslatables(Component original, boolean inTranslatable) {
         List<Component> newChildren = new ArrayList<>();
         for (Component child : original.children()) {
-            newChildren.add(replaceAllPlayerNames(child));
+            newChildren.add(replaceNamesInTranslatables(child, inTranslatable));
         }
         Component current = original.children(newChildren);
 
         if (current instanceof TranslatableComponent tr) {
             List<Component> newArgs = new ArrayList<>();
             for (Component arg : tr.args()) {
-                newArgs.add(replaceAllPlayerNames(arg));
+                newArgs.add(replaceNamesInTranslatables(arg, true));
             }
             current = tr.toBuilder().args(newArgs).build();
         }
 
-        String plain = PLAIN.serialize(current);
-        if (!plain.isEmpty()) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (plain.equals(p.getName())) {
-                    return replacePlayerNameLeaf(current, p);
+        if (inTranslatable) {
+            String plain = PLAIN.serialize(current);
+            if (!plain.isEmpty()) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (plain.equals(p.getName())) {
+                        return replacePlayerNameLeaf(current, p);
+                    }
                 }
             }
         }
