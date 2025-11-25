@@ -1,4 +1,4 @@
 ## ADN
-ADN (Advanced Display Name, previously AllDisplayname) is a plugin based on [SimpleNicks](https://github.com/Simplexity-Development/SimpleNicks).
+ADN (Advanced Display Name, previously AllDisplayName) is a plugin based on [SimpleNicks](https://github.com/Simplexity-Development/SimpleNicks).
 
-It can change player usernames to custom names and replace usernames with display names in all command outputs(ProtocolLib required)
+It can change player usernames to custom names and replace usernames with display names in all command outputs.
