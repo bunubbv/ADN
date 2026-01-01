@@ -1,7 +1,42 @@
-save-type: file
-max-saves: 5
-nick-prefix: ''
-nick-length: 30
-nick-protection: -1
-nick-pattern: '[가-힣a-zA-Z0-9]+'
-tablist-nick: true
+locales:
+  error:
+    args:
+      not-provided: '<prefix> <red>No arguments provided.'
+      too-many: '<prefix> <red>Too many arguments provided.'
+    invalid:
+      command: '<prefix> <red>Invalid command.'
+      nick: '<prefix> <red>Invalid nickname. It must match: <value>'
+      nick-length: '<prefix> <red>Nickname is too long. Max length is <value>'
+      nick-pattern: '<prefix> <red>''nick-pattern'' in config.yml is missing or malformed.'
+      player: '<prefix> <red>Invalid player.'
+      tags: '<prefix> <red>You used a formatting tag you do not have permission to use.'
+    must-be-player: '<prefix> <red>A player is required to run this command here'
+    nick:
+      is-null: '<prefix> <red>Nickname is null. Check your formatting.'
+      name-nonexistent: '<prefix> <red>That nickname does not exist.'
+      other-players-nick: '<prefix> <red>You cannot use <value><reset><red>; that name belongs to another player.'
+      remove-failure: '<prefix> <red>Failed to remove the nickname.'
+      save-failure: '<prefix> <red>Failed to save the nickname.'
+      too-many-to-save: '<prefix> <red>You have reached the limit of saved nicknames. Remove one with /adn remove <value>'
+    no-permission: '<prefix> <red>You don''t have permission to use this command.'
+  info:
+    config-reloaded: '<prefix> <green>Config reloaded successfully!'
+    help-message: '/adn <set|reload|remove|reset>'
+    prefix: '<gray><b>[ADN]</b></gray>'
+    shown-help: '<prefix> <target><reset><yellow> has been shown the help screen'
+  nick:
+    remove: '<prefix> The nickname <value> has been removed.'
+    reset:
+      by-user: '<prefix> <gray>Your nickname was reset by <initiator>.'
+      self: '<prefix> Your nickname has been reset.'
+      user: '<prefix> Reset <target>''s nickname.'
+    set:
+      by-user: '<prefix> <gray><initiator> changed your nickname to <value><reset>.'
+      self: '<prefix> Your nickname has been updated to <value><reset>.'
+      user: '<prefix> Updated <target>''s nickname to <value><reset>.'
+options:
+  nick-length: 30
+  nick-pattern: '[가-힣a-zA-Z0-9]+'
+  nick-prefix: ''
+  nick-protection: -1
+  tablist-nick: true

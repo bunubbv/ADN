@@ -1,30 +1,28 @@
-name: ADN
-version: '2.2.0'
-main: com.bunubbv.adn.adn
 api-version: '1.21'
-author: "bunubbv"
-website: "https://github.com/bunubbv/ADN"
+author: 'bunubbv'
 commands:
   adn:
-    usage: /adn
+    usage: '/adn'
+main: 'com.bunubbv.adn.adn'
+name: 'ADN'
 permissions:
-  adn.use:
+  adn.format:
     default: true
-  adn.set.self:
-    default: true
-  adn.set.user:
-    default: op
-  adn.save:
+  adn.reload:
+    default: 'op'
+  adn.remove:
     default: true
   adn.reset.self:
     default: true
   adn.reset.user:
-    default: op
-  adn.remove:
+    default: 'op'
+  adn.set.self:
     default: true
-  adn.reload:
-    default: op
-  adn.format:
+  adn.set.user:
+    default: 'op'
+  adn.use:
     default: true
 softdepend:
-  - ProtocolLib
+  - 'ProtocolLib'
+version: '2.3.0'
+website: 'https://github.com/bunubbv/ADN'
