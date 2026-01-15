@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public final class NickManager {
     private final FileConfiguration cfg;
     private final LocaleManager locale;
-    private final SqliteNickStore store;
+    private final SqlNickStore store;
 
     private int nickLength;
     private Pattern nickPattern;
@@ -30,7 +30,7 @@ public final class NickManager {
         ERROR_USERNAME_TAKEN
     }
 
-    public NickManager(FileConfiguration cfg, LocaleManager locale, SqliteNickStore store) {
+    public NickManager(FileConfiguration cfg, LocaleManager locale, SqlNickStore store) {
         this.cfg = cfg;
         this.locale = locale;
         this.store = store;

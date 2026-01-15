@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ProtocolRewriter {
+public final class ProtocolHook {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private static final GsonComponentSerializer GSON = GsonComponentSerializer.gson();
     private static final boolean DEBUG = false;
@@ -25,7 +25,7 @@ public final class ProtocolRewriter {
     private final JavaPlugin plugin;
     private final ProtocolManager protocolManager;
 
-    public ProtocolRewriter(JavaPlugin plugin, ProtocolManager protocolManager) {
+    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager) {
         this.plugin = plugin;
         this.protocolManager = protocolManager;
     }
@@ -88,7 +88,7 @@ public final class ProtocolRewriter {
         }
     }
 
-    private Component replacePlayerNameLeaf(Component original, Player target) {
+    private Component replacePlayerName(Component original, Player target) {
         String plain = PLAIN.serialize(original);
         if (!plain.equals(target.getName())) return original;
 
@@ -135,7 +135,7 @@ public final class ProtocolRewriter {
             if (!plain.isEmpty()) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (plain.equals(p.getName())) {
-                        return replacePlayerNameLeaf(current, p);
+                        return replacePlayerName(current, p);
                     }
                 }
             }

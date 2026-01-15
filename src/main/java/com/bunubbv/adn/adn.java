@@ -18,7 +18,7 @@ import java.util.Locale;
 public final class adn extends JavaPlugin implements Listener, TabExecutor {
     private LocaleManager locale;
     private NickManager nick;
-    private SqliteNickStore store;
+    private SqlNickStore store;
 
     @Override
     public void onEnable() {
@@ -30,7 +30,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         locale = new LocaleManager(this);
 
         try {
-            store = new SqliteNickStore(new File(getDataFolder(), "adn.db"));
+            store = new SqlNickStore(new File(getDataFolder(), "adn.db"));
             store.open();
 
             int migrated = migrator.migrateNicksFile(store);
@@ -54,11 +54,11 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         try {
             Class.forName("com.comphenix.protocol.ProtocolLibrary");
             ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-            new ProtocolRewriter(this, protocolManager).register();
+            new ProtocolHook(this, protocolManager).register();
 
             getLogger().info("ProtocolLib detected! Packet rewrite enabled.");
         } catch (ClassNotFoundException e) {
-            getLogger().warning("ProtocolLib not found. Packet rewrite disabled.");
+            getLogger().warning("ProtocolLib not found. Username replacement requires ProtocolLib.");
         }
     }
 

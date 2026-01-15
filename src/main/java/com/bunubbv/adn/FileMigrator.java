@@ -116,7 +116,7 @@ public final class FileMigrator {
         plugin.reloadConfig();
     }
 
-    public int migrateNicksFile(SqliteNickStore store) throws Exception {
+    public int migrateNicksFile(SqlNickStore store) throws Exception {
         File dataFolder = plugin.getDataFolder();
         File nickFile = new File(dataFolder, "nicks.yml");
         if (!nickFile.exists()) return 0;

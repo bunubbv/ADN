@@ -4,11 +4,11 @@ import java.io.File;
 import java.sql.*;
 import java.util.UUID;
 
-public final class SqliteNickStore {
+public final class SqlNickStore {
     private final File file;
     private Connection conn;
 
-    public SqliteNickStore(File file) {
+    public SqlNickStore(File file) {
         this.file = file;
     }
 
