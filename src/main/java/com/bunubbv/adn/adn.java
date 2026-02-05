@@ -101,8 +101,8 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
     }
 
     private void handleSet(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            locale.send(sender, "error.args.not-provided");
+        if (args.length == 1) {
+            handleReset(sender, args);
             return;
         }
 
