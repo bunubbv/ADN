@@ -79,13 +79,23 @@ public final class NickManager {
 
     public NickValidationResult validateNickname(Player requester, String rawNickname) {
         if (!requester.hasPermission("adn.format")) {
-            if (rawNickname.contains("<") || rawNickname.contains(">")) {
+            String tmp = rawNickname.replace("\\<", "").replace("\\>", "");
+            if (tmp.contains("<") || tmp.contains(">")) {
                 return NickValidationResult.ERROR_TAG_PERMISSION;
             }
         }
 
-        String stripped = stripTags(rawNickname);
-        if (stripped == null || stripped.isEmpty()) return NickValidationResult.ERROR_INVALID;
+        String safe = rawNickname
+                .replace("\\<", "\u0001")
+                .replace("\\>", "\u0002");
+
+        String stripped = stripTags(safe);
+
+        stripped = stripped
+                .replace("\u0001", "<")
+                .replace("\u0002", ">");
+
+        if (stripped.isEmpty()) return NickValidationResult.ERROR_INVALID;
         if (stripped.length() > nickLength) return NickValidationResult.ERROR_LENGTH;
         if (!nickPattern.matcher(stripped).matches()) return NickValidationResult.ERROR_REGEX;
 
