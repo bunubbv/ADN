@@ -93,14 +93,18 @@ public final class ProtocolHook {
         if (!plain.equals(target.getName())) return original;
 
         Style originalStyle = original.style();
-        Component display = target.displayName();
+
+        Component display = net.kyori.adventure.text.Component.text(target.getDisplayName());
 
         Component result = display.style(
                 display.style().merge(originalStyle, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)
         );
 
-        if (originalStyle.clickEvent() != null) result = result.clickEvent(originalStyle.clickEvent());
-        if (originalStyle.hoverEvent() != null) result = result.hoverEvent(originalStyle.hoverEvent());
+        if (originalStyle.clickEvent() != null)
+            result = result.clickEvent(originalStyle.clickEvent());
+
+        if (originalStyle.hoverEvent() != null)
+            result = result.hoverEvent(originalStyle.hoverEvent());
 
         if (!original.children().isEmpty()) {
             List<Component> newChildren = new ArrayList<>(result.children());
