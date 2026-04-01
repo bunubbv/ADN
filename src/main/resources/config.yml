@@ -13,16 +13,12 @@ locales:
     must-be-player: '<prefix> <red>A player is required to run this command here'
     nick:
       is-null: '<prefix> <red>Nickname is null. Check your formatting.'
-      name-nonexistent: '<prefix> <red>That nickname does not exist.'
-      other-players-nick: '<prefix> <red>You cannot use <value><reset><red>; that name belongs to another player.'
     no-permission: '<prefix> <red>You don''t have permission to use this command.'
   info:
     config-reloaded: '<prefix> <green>Config reloaded successfully!'
     help-message: '/adn <set|reload|reset>'
     prefix: '<gray><b>[ADN]</b></gray>'
-    shown-help: '<prefix> <target><reset><yellow> has been shown the help screen'
   nick:
-    remove: '<prefix> The nickname <value> has been removed.'
     reset:
       by-user: '<prefix> <gray>Your nickname was reset by <initiator>.'
       self: '<prefix> Your nickname has been reset.'

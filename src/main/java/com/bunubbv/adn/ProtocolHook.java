@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,6 +22,13 @@ public final class ProtocolHook {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private static final GsonComponentSerializer GSON = GsonComponentSerializer.gson();
     private static final boolean DEBUG = false;
+
+    private static final LegacyComponentSerializer legacy =
+            LegacyComponentSerializer.builder()
+                    .hexColors()
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .character('§')
+                    .build();
 
     private final JavaPlugin plugin;
     private final ProtocolManager protocolManager;
@@ -94,7 +102,7 @@ public final class ProtocolHook {
 
         Style originalStyle = original.style();
 
-        Component display = net.kyori.adventure.text.Component.text(target.getDisplayName());
+        Component display = legacy.deserialize(target.getDisplayName());
 
         Component result = display.style(
                 display.style().merge(originalStyle, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)

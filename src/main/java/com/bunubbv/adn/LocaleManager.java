@@ -13,10 +13,16 @@ import java.io.File;
 public final class LocaleManager {
     private final JavaPlugin plugin;
     private final MiniMessage miniMsg = MiniMessage.miniMessage();
-    private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacySection();
 
     private FileConfiguration locale;
     private String prefix;
+
+    private static final LegacyComponentSerializer legacy =
+            LegacyComponentSerializer.builder()
+                    .hexColors()
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .character('§')
+                    .build();
 
     public LocaleManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -56,8 +62,8 @@ public final class LocaleManager {
         sender.sendMessage(legacy.serialize(component));
     }
 
-    public String miniMsgToLegacy(String miniMessage) {
-        Component component = miniMsg.deserialize(miniMessage);
-        return legacy.serialize(component);
+    public String miniMsgToLegacy(String input) {
+        Component component = miniMsg.deserialize(input);
+        return legacy.serialize(component) + "§r";
     }
 }
