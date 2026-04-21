@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -22,9 +23,40 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
     @Override
     public void onEnable() {
+        File dataFolder = getDataFolder();
+        dataFolder.mkdirs();
+
+        // Migration from 2.3.x
+        File configFile = new File(dataFolder, "config.yml");
+        File textsFile = new File(dataFolder, "texts.yml");
+
+        if (textsFile.exists()) {
+            getLogger().severe("Detected legacy configuration! Direct upgrade to 2.4.0 is NOT supported.");
+            getLogger().severe("Please upgrade to 2.3.x first, then upgrade to 2.4.0.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
         saveDefaultConfig();
-        FileMigrator migrator = new FileMigrator(this);
-        migrator.migrateTextsFile();
+        YamlConfiguration cfg = YamlConfiguration.loadConfiguration(configFile);
+
+        boolean hasVersion = cfg.contains("version");
+
+        if (!hasVersion) {
+            boolean hasLocales = cfg.isConfigurationSection("locales");
+            boolean hasOptions = cfg.isConfigurationSection("options");
+
+            if (!hasLocales || !hasOptions) {
+                getLogger().severe("Invalid or unsupported config.yml detected.");
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
+        }
+
+        ConfigMigrator migrator = new ConfigMigrator(this);
+        migrator.migrateIfNeeded();
+
+        // Plugin Initialization
         reloadConfig();
 
         locale = new LocaleManager(this);
@@ -32,9 +64,6 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         try {
             store = new SqlNickStore(new File(getDataFolder(), "adn.db"));
             store.open();
-
-            int migrated = migrator.migrateNicksFile(store);
-            if (migrated > 0) getLogger().info("Migrated " + migrated + " entries.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,12 +78,15 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
             command.setExecutor(this);
             command.setTabCompleter(this);
         }
+
         Bukkit.getPluginManager().registerEvents(this, this);
 
         try {
             Class.forName("com.comphenix.protocol.ProtocolLibrary");
             ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-            new ProtocolHook(this, protocolManager).register();
+
+            boolean debug = getConfig().getBoolean("debug", false);
+            new ProtocolHook(this, protocolManager, debug).register();
 
             getLogger().info("ProtocolLib detected! Packet rewrite enabled.");
         } catch (ClassNotFoundException e) {
@@ -85,7 +117,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
                              @NotNull String label,
                              String[] args) {
         if (args.length == 0) {
-            locale.send(sender, "info.help-message");
+            locale.send(sender, "info.help");
             return true;
         }
 
@@ -95,7 +127,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
             case "set" -> handleSet(sender, args);
             case "reset" -> handleReset(sender, args);
             case "reload" -> handleReload(sender);
-            default -> locale.send(sender, "error.invalid.command");
+            default -> locale.send(sender, "info.help");
         }
         return true;
     }
@@ -107,7 +139,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         }
 
         if (args.length > 3) {
-            locale.send(sender, "error.args.too-many");
+            locale.send(sender, "info.help");
             return;
         }
 
@@ -129,7 +161,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             nick.setCurrent(player.getUniqueId(), rawNick);
             nick.applyNickname(player, rawNick);
-            locale.send(player, "nick.set.self", rawNick, null, null);
+            locale.send(player, "nickname.set.self", rawNick, null, null);
 
             return;
         }
@@ -141,7 +173,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
         Player target = Bukkit.getPlayerExact(args[2]);
         if (target == null) {
-            locale.send(sender, "error.invalid.player");
+            locale.send(sender, "error.invalid-player");
             return;
         }
 
@@ -151,8 +183,8 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         nick.setCurrent(target.getUniqueId(), rawNick);
         nick.applyNickname(target, rawNick);
 
-        locale.send(sender, "nick.set.user", rawNick, target.getName(), null);
-        locale.send(target, "nick.set.by-user", rawNick, null, sender.getName());
+        locale.send(sender, "nickname.set.other-sender", rawNick, target.getName(), null);
+        locale.send(target, "nickname.set.other-target", rawNick, null, sender.getName());
     }
 
     private void handleReset(CommandSender sender, String[] args) {
@@ -169,7 +201,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             nick.removeCurrent(player.getUniqueId());
             nick.applyReset(player);
-            locale.send(player, "nick.reset.self");
+            locale.send(player, "nickname.reset.self");
             return;
         }
 
@@ -181,19 +213,19 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                locale.send(sender, "error.invalid.player");
+                locale.send(sender, "error.invalid-player");
                 return;
             }
 
             nick.removeCurrent(target.getUniqueId());
             nick.applyReset(target);
 
-            locale.send(sender, "nick.reset.user", null, target.getName(), null);
-            locale.send(target, "nick.reset.by-user", null, null, sender.getName());
+            locale.send(sender, "nickname.reset.other-sender", null, target.getName(), null);
+            locale.send(target, "nickname.reset.other-target", null, null, sender.getName());
             return;
         }
 
-        locale.send(sender, "error.args.too-many");
+        locale.send(sender, "info.help");
     }
 
     private void handleReload(CommandSender sender) {
@@ -204,9 +236,9 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
         reloadConfig();
         locale.reload();
-        nick.reload();
+        nick.reload(getConfig());
 
-        locale.send(sender, "info.config-reloaded");
+        locale.send(sender, "info.reload");
     }
 
     @Override

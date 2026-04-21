@@ -1,0 +1,23 @@
+prefix: '<gray><b>[ADN]</b></gray>'
+info:
+  help: '/adn <set|reload|reset>'
+  reload: '<prefix> <green>Config reloaded successfully!'
+error:
+  no-permission: '<prefix> <red>You don''t have permission to use this command.'
+  no-format-permission: '<prefix> <red>You used a formatting tag you do not have permission to use.'
+  must-be-player: '<prefix> <red>A player is required to run this command here.'
+  invalid-player: '<prefix> <red>Invalid player.'
+  nickname-null: '<prefix> <red>Nickname is null. Check your formatting.'
+  nickname-invalid: '<prefix> <red>Invalid nickname. It must match: <value>'
+  nickname-too-long: '<prefix> <red>Nickname is too long. Max length is <value>'
+  invalid-pattern: '<prefix> <red>''nick-pattern'' in config.yml is missing or malformed.'
+nickname:
+  set:
+    self: '<prefix> Your nickname has been updated to <value><reset>.'
+    other-sender: '<prefix> Updated <target>''s nickname to <value><reset>.'
+    other-target: '<prefix> <gray><initiator> changed your nickname to <value><reset>.'
+  reset:
+    self: '<prefix> Your nickname has been reset.'
+    other-sender: '<prefix> Reset <target>''s nickname.'
+    other-target: '<prefix> <gray>Your nickname was reset by <initiator>.'
+version: 1

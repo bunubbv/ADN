@@ -21,7 +21,7 @@ import java.util.List;
 public final class ProtocolHook {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private static final GsonComponentSerializer GSON = GsonComponentSerializer.gson();
-    private static final boolean DEBUG = false;
+    private final boolean debug;
 
     private static final LegacyComponentSerializer legacy =
             LegacyComponentSerializer.builder()
@@ -33,9 +33,10 @@ public final class ProtocolHook {
     private final JavaPlugin plugin;
     private final ProtocolManager protocolManager;
 
-    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager) {
+    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager, boolean debug) {
         this.plugin = plugin;
         this.protocolManager = protocolManager;
+        this.debug = debug;
     }
 
     public void register() {
@@ -52,13 +53,13 @@ public final class ProtocolHook {
                 Component root = readComponentFromPacket(packet);
                 if (root == null) return;
 
-                if (DEBUG) plugin.getLogger().info("--- PACKET (ORIGINAL) --- " + PLAIN.serialize(root));
+                if (debug) plugin.getLogger().info("--- PACKET (ORIGINAL) --- " + PLAIN.serialize(root));
 
                 Component modified = replaceNamesInTranslatables(root);
 
                 if (modified.equals(root)) return;
 
-                if (DEBUG) plugin.getLogger().info("--- PACKET (MODIFIED) --- " + PLAIN.serialize(modified));
+                if (debug) plugin.getLogger().info("--- PACKET (MODIFIED) --- " + PLAIN.serialize(modified));
 
                 writeComponentToPacket(packet, modified);
             }
@@ -139,7 +140,7 @@ public final class ProtocolHook {
             for (Component arg : tr.args()) {
                 newArgs.add(replaceNamesInTranslatables(arg, true));
             }
-            current = tr.toBuilder().args(newArgs).build();
+            current = tr.toBuilder().arguments(newArgs).build();
         }
 
         if (inTranslatable) {

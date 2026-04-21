@@ -1,7 +1,5 @@
 package com.bunubbv.adn;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -10,46 +8,48 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class NickManager {
-    private final FileConfiguration cfg;
+    private FileConfiguration cfg;
     private final LocaleManager locale;
     private final SqlNickStore store;
 
-    private int nickLength;
+    private int nickMaxLength;
     private Pattern nickPattern;
     private boolean tablistNick;
-    private int nickProtection;
 
     private final Pattern tagPattern = Pattern.compile("<[^>]+>");
 
     public enum NickValidationResult {
         OK,
         ERROR_INVALID,
-        ERROR_LENGTH,
-        ERROR_REGEX,
-        ERROR_TAG_PERMISSION,
-        ERROR_USERNAME_TAKEN
+        ERROR_NICK_TOO_LONG,
+        ERROR_NICK_INVALID,
+        ERROR_NO_FORMAT_PERMISSION,
     }
 
     public NickManager(FileConfiguration cfg, LocaleManager locale, SqlNickStore store) {
         this.cfg = cfg;
         this.locale = locale;
         this.store = store;
-        reload();
+        reload(cfg);
     }
 
-    public void reload() {
-        nickLength = cfg.getInt("options.nick-length", 30);
+    public void reload(FileConfiguration cfg) {
+        this.cfg = cfg;
 
-        String regex = cfg.getString("options.nick-pattern", "[가-힣a-zA-Z0-9]+");
-        try { nickPattern = Pattern.compile(regex); }
-        catch (Exception e) { nickPattern = Pattern.compile("[가-힣a-zA-Z0-9]+"); }
+        nickMaxLength = cfg.getInt("nickname-max-length", 30);
 
-        tablistNick = cfg.getBoolean("options.tablist-nick", true);
-        nickProtection = cfg.getInt("options.nick-protection", -1);
+        String regex = cfg.getString("nickname-pattern", "[A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣]+");
+        try {
+            nickPattern = Pattern.compile(regex);
+        } catch (Exception e) {
+            nickPattern = Pattern.compile("[A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣]+");
+        }
+
+        tablistNick = cfg.getBoolean("tablist-nickname", true);
     }
 
     public void applyNickname(Player player, String rawNickname) {
-        String prefix = cfg.getString("options.nick-prefix", "");
+        String prefix = cfg.getString("nickname-prefix", "");
         String fullMini = prefix + rawNickname;
         String legacy = locale.miniMsgToLegacy(fullMini);
 
@@ -81,7 +81,7 @@ public final class NickManager {
         if (!requester.hasPermission("adn.format")) {
             String tmp = rawNickname.replace("\\<", "").replace("\\>", "");
             if (tmp.contains("<") || tmp.contains(">")) {
-                return NickValidationResult.ERROR_TAG_PERMISSION;
+                return NickValidationResult.ERROR_NO_FORMAT_PERMISSION;
             }
         }
 
@@ -96,23 +96,8 @@ public final class NickManager {
                 .replace("\u0002", ">");
 
         if (stripped.isEmpty()) return NickValidationResult.ERROR_INVALID;
-        if (stripped.length() > nickLength) return NickValidationResult.ERROR_LENGTH;
-        if (!nickPattern.matcher(stripped).matches()) return NickValidationResult.ERROR_REGEX;
-
-        if (nickProtection >= 0) {
-            for (OfflinePlayer op : Bukkit.getOfflinePlayers()) {
-                if (op.getName() == null) continue;
-                if (op.getName().equalsIgnoreCase(stripped)) {
-                    long lastPlayed = op.getLastPlayed();
-                    if (lastPlayed == 0L) return NickValidationResult.ERROR_USERNAME_TAKEN;
-
-                    long now = System.currentTimeMillis();
-                    long diff = now - lastPlayed;
-                    long days = diff / (1000L * 60 * 60 * 24);
-                    if (days <= nickProtection) return NickValidationResult.ERROR_USERNAME_TAKEN;
-                }
-            }
-        }
+        if (stripped.length() > nickMaxLength) return NickValidationResult.ERROR_NICK_TOO_LONG;
+        if (!nickPattern.matcher(stripped).matches()) return NickValidationResult.ERROR_NICK_INVALID;
 
         return NickValidationResult.OK;
     }
@@ -127,28 +112,24 @@ public final class NickManager {
                                          String raw) {
         return !switch (result) {
             case OK -> true;
-            case ERROR_LENGTH -> {
-                locale.send(sender, "error.invalid.nick-length",
-                        String.valueOf(cfg.getInt("options.nick-length", 30)),
+            case ERROR_NICK_TOO_LONG -> {
+                locale.send(sender, "error.nickname-too-long",
+                        String.valueOf(nickMaxLength),
                         null, null);
                 yield false;
             }
-            case ERROR_REGEX -> {
-                locale.send(sender, "error.invalid.nick",
-                        cfg.getString("options.nick-pattern", "[가-힣a-zA-Z0-9]+"),
+            case ERROR_NICK_INVALID -> {
+                locale.send(sender, "error.nickname-invalid",
+                        cfg.getString("nickname-pattern", "[A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣]+"),
                         null, null);
                 yield false;
             }
-            case ERROR_TAG_PERMISSION -> {
-                locale.send(sender, "error.invalid.tags");
-                yield false;
-            }
-            case ERROR_USERNAME_TAKEN -> {
-                locale.send(sender, "error.nick.other-players-nick", raw, null, null);
+            case ERROR_NO_FORMAT_PERMISSION -> {
+                locale.send(sender, "error.no-format-permission");
                 yield false;
             }
             default -> {
-                locale.send(sender, "error.nick.is-null");
+                locale.send(sender, "error.nickname-null");
                 yield false;
             }
         };
