@@ -23,41 +23,36 @@
 * Default settings:
 
 ```yaml
-locales:
-  error:
-    args:
-      not-provided: '<prefix> <red>No arguments provided.'
-      too-many: '<prefix> <red>Too many arguments provided.'
-    invalid:
-      command: '<prefix> <red>Invalid command.'
-      nick: '<prefix> <red>Invalid nickname. It must match: <value>'
-      nick-length: '<prefix> <red>Nickname is too long. Max length is <value>'
-      nick-pattern: '<prefix> <red>''nick-pattern'' in config.yml is missing or malformed.'
-      player: '<prefix> <red>Invalid player.'
-      tags: '<prefix> <red>You used a formatting tag you do not have permission to use.'
-    must-be-player: '<prefix> <red>A player is required to run this command here'
-    nick:
-      is-null: '<prefix> <red>Nickname is null. Check your formatting.'
-    no-permission: '<prefix> <red>You don''t have permission to use this command.'
-  info:
-    config-reloaded: '<prefix> <green>Config reloaded successfully!'
-    help-message: '/adn <set|reload|reset>'
-    prefix: '<gray><b>[ADN]</b></gray>'
-  nick:
-    reset:
-      by-user: '<prefix> <gray>Your nickname was reset by <initiator>.'
-      self: '<prefix> Your nickname has been reset.'
-      user: '<prefix> Reset <target>''s nickname.'
-    set:
-      by-user: '<prefix> <gray><initiator> changed your nickname to <value><reset>.'
-      self: '<prefix> Your nickname has been updated to <value><reset>.'
-      user: '<prefix> Updated <target>''s nickname to <value><reset>.'
-options:
-  nick-length: 30
-  nick-pattern: '[가-힣a-zA-Z0-9]+'
-  nick-prefix: ''
-  nick-protection: -1
-  tablist-nick: true
+# config.yml
+debug: false
+nickname-prefix: ''
+nickname-pattern: '[A-Za-z0-9ㄱ-ㅎㅏ-ㅣ가-힣]+'
+nickname-max-length: 30
+tablist-nickname: true
+
+# messages.yml
+prefix: '<gray><b>[ADN]</b></gray>'
+info:
+  help: '/adn <set|reload|reset>'
+  reload: '<prefix> <green>Config reloaded successfully!'
+error:
+  no-permission: '<prefix> <red>You don''t have permission to use this command.'
+  no-format-permission: '<prefix> <red>You used a formatting tag you do not have permission to use.'
+  must-be-player: '<prefix> <red>A player is required to run this command here.'
+  invalid-player: '<prefix> <red>Invalid player.'
+  nickname-null: '<prefix> <red>Nickname is null. Check your formatting.'
+  nickname-invalid: '<prefix> <red>Invalid nickname. It must match: <value>'
+  nickname-too-long: '<prefix> <red>Nickname is too long. Max length is <value>'
+  invalid-pattern: '<prefix> <red>''nick-pattern'' in config.yml is missing or malformed.'
+nickname:
+  set:
+    self: '<prefix> Your nickname has been updated to <value><reset>.'
+    other-sender: '<prefix> Updated <target>''s nickname to <value><reset>.'
+    other-target: '<prefix> <gray><initiator> changed your nickname to <value><reset>.'
+  reset:
+    self: '<prefix> Your nickname has been reset.'
+    other-sender: '<prefix> Reset <target>''s nickname.'
+    other-target: '<prefix> <gray>Your nickname was reset by <initiator>.'
 ```
 
 * After editing the config, run /adn reload to apply changes without restarting the server.
