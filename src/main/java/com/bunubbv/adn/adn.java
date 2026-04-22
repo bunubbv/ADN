@@ -1,13 +1,13 @@
 package com.bunubbv.adn;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
+import com.bunubbv.adn.nms.ChatRewriteService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,6 +20,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
     private LocaleManager locale;
     private NickManager nick;
     private SqlNickStore store;
+    private ChatRewriteService chatRewriteService;
 
     @Override
     public void onEnable() {
@@ -64,7 +65,6 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         try {
             store = new SqlNickStore(new File(getDataFolder(), "adn.db"));
             store.open();
-
         } catch (Exception e) {
             e.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
@@ -81,33 +81,52 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        try {
-            Class.forName("com.comphenix.protocol.ProtocolLibrary");
-            ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+        chatRewriteService = new ChatRewriteService(this);
+        chatRewriteService.enable();
 
-            boolean debug = getConfig().getBoolean("debug", false);
-            new ProtocolHook(this, protocolManager, debug).register();
-
-            getLogger().info("ProtocolLib detected! Packet rewrite enabled.");
-        } catch (ClassNotFoundException e) {
-            getLogger().warning("ProtocolLib not found. Username replacement requires ProtocolLib.");
-        }
+        getLogger().info("NMS chat rewrite enabled.");
     }
 
     @Override
     public void onDisable() {
-        if (store != null) store.close();
+        if (chatRewriteService != null) {
+            chatRewriteService.disable();
+        }
+
+        if (store != null) {
+            store.close();
+        }
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+
+        if (chatRewriteService != null) {
+            chatRewriteService.inject(player);
+        }
+
         String rawNick = nick.getCurrent(player.getUniqueId());
 
         if (rawNick != null && !rawNick.isEmpty()) {
             nick.applyNickname(player, rawNick);
+
+            if (chatRewriteService != null) {
+                chatRewriteService.refreshPlayer(player);
+            }
         } else {
             nick.applyReset(player);
+
+            if (chatRewriteService != null) {
+                chatRewriteService.refreshPlayer(player);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        if (chatRewriteService != null) {
+            chatRewriteService.uninject(event.getPlayer());
         }
     }
 
@@ -135,6 +154,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
     private void handleSet(CommandSender sender, String[] args) {
         if (args.length == 1) {
             handleReset(sender, args);
+            chatRewriteService.refreshPlayer((Player) sender);
             return;
         }
 
@@ -161,8 +181,9 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             nick.setCurrent(player.getUniqueId(), rawNick);
             nick.applyNickname(player, rawNick);
-            locale.send(player, "nickname.set.self", rawNick, null, null);
 
+            chatRewriteService.refreshPlayer(player);
+            locale.send(player, "nickname.set.self", rawNick, null, null);
             return;
         }
 
@@ -183,6 +204,11 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         nick.setCurrent(target.getUniqueId(), rawNick);
         nick.applyNickname(target, rawNick);
 
+        if (chatRewriteService != null) {
+            chatRewriteService.inject(target);
+            chatRewriteService.refreshPlayer((Player) target);
+        }
+
         locale.send(sender, "nickname.set.other-sender", rawNick, target.getName(), null);
         locale.send(target, "nickname.set.other-target", rawNick, null, sender.getName());
     }
@@ -201,6 +227,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             nick.removeCurrent(player.getUniqueId());
             nick.applyReset(player);
+            chatRewriteService.refreshPlayer(player);
             locale.send(player, "nickname.reset.self");
             return;
         }
@@ -219,6 +246,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
 
             nick.removeCurrent(target.getUniqueId());
             nick.applyReset(target);
+            chatRewriteService.refreshPlayer(target);
 
             locale.send(sender, "nickname.reset.other-sender", null, target.getName(), null);
             locale.send(target, "nickname.reset.other-target", null, null, sender.getName());
@@ -255,6 +283,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         } else if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
             for (Player p : Bukkit.getOnlinePlayers()) list.add(p.getName());
         }
+
         return list;
     }
 }

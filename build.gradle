@@ -2,22 +2,24 @@ plugins {
     id 'java'
     id 'xyz.jpenilla.run-paper' version '2.3.1'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.papermc.paperweight.userdev' version '2.0.0-beta.21'
 }
 
 group = 'com.bunubbv'
-version = '2.4.0'
+version = '2.5.0-dev-1'
 
 repositories {
     mavenCentral()
+
     maven {
-        name = 'spigotmc-repo'
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        url = 'https://repo.papermc.io/repository/maven-public/'
     }
+
+    gradlePluginPortal()
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.19.4-R0.1-SNAPSHOT'
-    compileOnly 'net.dmulloy2:ProtocolLib:5.4.0'
+    paperweight.paperDevBundle("26.1.2.build.+")
 
     implementation 'net.kyori:adventure-text-minimessage:4.20.0'
     implementation 'net.kyori:adventure-text-serializer-legacy:4.17.0'
@@ -28,11 +30,11 @@ dependencies {
 
 tasks {
     runServer {
-        minecraftVersion '1.19'
+        minecraftVersion '26.1.2'
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 25
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
@@ -52,10 +54,6 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('shadowJar') {
     archiveClassifier = ''
-}
-
-tasks.named('build') {
-    dependsOn tasks.named('shadowJar')
 }
 
 processResources {
