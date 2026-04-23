@@ -62,8 +62,6 @@ nickname:
     * default: true
 * adn.reload:
     * default: 'op'
-* adn.remove:
-    * default: true
 * adn.reset.self:
     * default: true
 * adn.reset.user:
@@ -72,8 +70,6 @@ nickname:
     * default: true
 * adn.set.user:
     * default: 'op'
-* adn.use:
-    * default: true
 
 ## Commands
 * /adn set \<nickname>

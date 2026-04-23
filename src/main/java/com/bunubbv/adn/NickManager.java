@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public final class NickManager {
     private FileConfiguration cfg;
-    private final LocaleManager locale;
+    private final MessageManager locale;
     private final SqlNickStore store;
 
     private int nickMaxLength;
@@ -26,10 +26,11 @@ public final class NickManager {
         ERROR_NO_FORMAT_PERMISSION,
     }
 
-    public NickManager(FileConfiguration cfg, LocaleManager locale, SqlNickStore store) {
+    public NickManager(FileConfiguration cfg, MessageManager locale, SqlNickStore store) {
         this.cfg = cfg;
         this.locale = locale;
         this.store = store;
+
         reload(cfg);
     }
 
@@ -63,18 +64,27 @@ public final class NickManager {
     }
 
     public String getCurrent(UUID uuid) {
-        try { return store.getNick(uuid); }
-        catch (Exception e) { return null; }
+        try {
+            return store.getNick(uuid);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void setCurrent(UUID uuid, String raw) {
-        try { store.setNick(uuid, raw); }
-        catch (Exception ignored) {}
+        try {
+            store.setNick(uuid, raw);
+        } catch (Exception ignored) {
+
+        }
     }
 
     public void removeCurrent(UUID uuid) {
-        try { store.removeNick(uuid); }
-        catch (Exception ignored) {}
+        try {
+            store.removeNick(uuid);
+        } catch (Exception ignored) {
+
+        }
     }
 
     public NickValidationResult validateNickname(Player requester, String rawNickname) {
@@ -104,12 +114,12 @@ public final class NickManager {
 
     private String stripTags(String input) {
         Matcher matcher = tagPattern.matcher(input);
+
         return matcher.replaceAll("");
     }
 
     public boolean handleValidationError(org.bukkit.command.CommandSender sender,
-                                         NickValidationResult result,
-                                         String raw) {
+                                         NickValidationResult result) {
         return !switch (result) {
             case OK -> true;
             case ERROR_NICK_TOO_LONG -> {

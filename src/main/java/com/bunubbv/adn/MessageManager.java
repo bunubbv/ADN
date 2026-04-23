@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
-public final class LocaleManager {
+public final class MessageManager {
     private final JavaPlugin plugin;
     private final MiniMessage miniMsg = MiniMessage.miniMessage();
 
@@ -24,7 +24,7 @@ public final class LocaleManager {
                     .character('§')
                     .build();
 
-    public LocaleManager(JavaPlugin plugin) {
+    public MessageManager(JavaPlugin plugin) {
         this.plugin = plugin;
         reload();
     }
@@ -69,6 +69,7 @@ public final class LocaleManager {
 
     public String miniMsgToLegacy(String input) {
         Component component = miniMsg.deserialize(input);
+
         return legacy.serialize(component) + "§r";
     }
 }

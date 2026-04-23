@@ -12,8 +12,6 @@ permissions:
     default: true
   adn.reload:
     default: op
-  adn.remove:
-    default: true
   adn.reset.self:
     default: true
   adn.reset.user:
@@ -22,7 +20,5 @@ permissions:
     default: true
   adn.set.user:
     default: op
-  adn.use:
-    default: true
 softdepend:
   - ProtocolLib

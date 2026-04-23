@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class adn extends JavaPlugin implements Listener, TabExecutor {
-    private LocaleManager locale;
+    private MessageManager locale;
     private NickManager nick;
     private SqlNickStore store;
 
@@ -59,7 +59,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         // Plugin Initialization
         reloadConfig();
 
-        locale = new LocaleManager(this);
+        locale = new MessageManager(this);
 
         try {
             store = new SqlNickStore(new File(getDataFolder(), "adn.db"));
@@ -102,13 +102,16 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        String rawNick = nick.getCurrent(player.getUniqueId());
 
-        if (rawNick != null && !rawNick.isEmpty()) {
-            nick.applyNickname(player, rawNick);
-        } else {
-            nick.applyReset(player);
-        }
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            String rawNick = nick.getCurrent(player.getUniqueId());
+
+            if (rawNick != null && !rawNick.isEmpty()) {
+                nick.applyNickname(player, rawNick);
+            } else {
+                nick.applyReset(player);
+            }
+        }, 1L);
     }
 
     @Override
@@ -151,13 +154,13 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
                 return;
             }
 
-            if (!player.hasPermission("adn.set.self") && !player.hasPermission("adn.use")) {
+            if (!player.hasPermission("adn.set.self")) {
                 locale.send(sender, "error.no-permission");
                 return;
             }
 
             var result = nick.validateNickname(player, rawNick);
-            if (nick.handleValidationError(sender, result, rawNick)) return;
+            if (nick.handleValidationError(sender, result)) return;
 
             nick.setCurrent(player.getUniqueId(), rawNick);
             nick.applyNickname(player, rawNick);
@@ -178,7 +181,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
         }
 
         var result = nick.validateNickname(target, rawNick);
-        if (nick.handleValidationError(sender, result, rawNick)) return;
+        if (nick.handleValidationError(sender, result)) return;
 
         nick.setCurrent(target.getUniqueId(), rawNick);
         nick.applyNickname(target, rawNick);
@@ -194,7 +197,7 @@ public final class adn extends JavaPlugin implements Listener, TabExecutor {
                 return;
             }
 
-            if (!player.hasPermission("adn.reset.self") && !player.hasPermission("adn.use")) {
+            if (!player.hasPermission("adn.reset.self")) {
                 locale.send(sender, "error.no-permission");
                 return;
             }
