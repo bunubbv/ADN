@@ -2,14 +2,14 @@
 
 ## Features
 ### Tablist nicknames
-<img width="308" height="60" alt="2026-02-13-15-17-07" src="https://github.com/user-attachments/assets/90fa9460-0fcf-4e70-872b-1f9c2cad3f01" />
+<img width="372" height="52" alt="2026-04-25-22-54-50" src="https://github.com/user-attachments/assets/3775a6dd-8f62-40c9-8810-a80ce98f8c5d" />
 
 ### MiniMessage Formatting
-<img width="887" height="253" alt="2026-02-13-15-17-01" src="https://github.com/user-attachments/assets/fe8099fb-84b9-4af5-a760-8e7ca5787618" />
+<img width="1168" height="223" alt="2026-04-25-22-54-45" src="https://github.com/user-attachments/assets/f13f60af-6481-4793-bea8-a128dfe807e1" />
 
 ### System message nicknames (Requires [ProtocolLib](https://github.com/dmulloy2/ProtocolLib))
-<img width="875" height="38" alt="2026-02-13-15-17-42" src="https://github.com/user-attachments/assets/842abf6d-c17f-4fb8-ab31-08262f88c12f" />
-<img width="625" height="38" alt="2026-02-13-15-17-53" src="https://github.com/user-attachments/assets/015da416-be94-4c85-9e26-9ad9df3ba6ad" />
+<img width="1025" height="49" alt="2026-04-25-22-55-35" src="https://github.com/user-attachments/assets/06e06cd5-626e-48ec-a289-6844bede196c" />
+<img width="697" height="49" alt="2026-04-25-22-55-24" src="https://github.com/user-attachments/assets/93afe351-93a9-4609-81db-15b12b96103b" />
 
 ### Other Features
 * Permissions support
