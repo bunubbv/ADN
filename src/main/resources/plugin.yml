@@ -1,6 +1,6 @@
 name: ADN
 version: "${version}"
-main: com.bunubbv.adn.adn
+main: com.bunubbv.adn.Adn
 api-version: '1.19'
 author: bunubbv
 website: "https://github.com/bunubbv/ADN"

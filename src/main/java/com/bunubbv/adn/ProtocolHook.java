@@ -7,6 +7,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -17,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class ProtocolHook {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
@@ -32,11 +34,14 @@ public final class ProtocolHook {
 
     private final JavaPlugin plugin;
     private final ProtocolManager protocolManager;
+    private final Map<String, String> lastDisplayNames;
 
-    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager, boolean debug) {
+    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager, boolean debug,
+                        Map<String, String> lastDisplayNames) {
         this.plugin = plugin;
         this.protocolManager = protocolManager;
         this.debug = debug;
+        this.lastDisplayNames = lastDisplayNames;
     }
 
     public void register() {
@@ -53,13 +58,11 @@ public final class ProtocolHook {
                 Component root = readComponentFromPacket(packet);
                 if (root == null) return;
 
-                if (debug) plugin.getLogger().info("--- PACKET (ORIGINAL) --- " + PLAIN.serialize(root));
+                if (debug) plugin.getLogger().info("--- PACKET (ORIGINAL JSON) --- " + GSON.serialize(root));
 
                 Component modified = replaceNamesInTranslatables(root);
 
-                if (modified.equals(root)) return;
-
-                if (debug) plugin.getLogger().info("--- PACKET (MODIFIED) --- " + PLAIN.serialize(modified));
+                if (debug) plugin.getLogger().info("--- PACKET (MODIFIED JSON) --- " + GSON.serialize(modified));
 
                 writeComponentToPacket(packet, modified);
             }
@@ -101,9 +104,56 @@ public final class ProtocolHook {
         String plain = PLAIN.serialize(original);
         if (!plain.equals(target.getName())) return original;
 
+        return applyDisplayName(original, target.getDisplayName());
+    }
+
+    private Component replaceNamesInTranslatables(Component original) {
+        return replaceNamesInTranslatables(original, false);
+    }
+
+    private Component replaceNamesInTranslatables(Component original, boolean inTranslatable) {
+        List<Component> newChildren = new ArrayList<>();
+
+        for (Component child : original.children()) {
+            newChildren.add(replaceNamesInTranslatables(child, inTranslatable));
+        }
+
+        Component current = original.children(newChildren);
+
+        if (current instanceof TranslatableComponent tr) {
+            List<TranslationArgument> newArgs = new ArrayList<>();
+
+            for (TranslationArgument arg : tr.arguments()) {
+                Component comp = arg.asComponent();
+                Component replaced = replaceNamesInTranslatables(comp, true);
+                newArgs.add(TranslationArgument.component(replaced));
+            }
+
+            current = tr.toBuilder().arguments(newArgs).build();
+        }
+
+        if (inTranslatable) {
+            String plain = PLAIN.serialize(current);
+            if (!plain.isEmpty()) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (plain.equals(p.getName())) {
+                        return replacePlayerName(current, p);
+                    }
+                }
+
+                if (lastDisplayNames.containsKey(plain)) {
+                    return applyDisplayName(current, lastDisplayNames.get(plain));
+                }
+            }
+        }
+
+        return current;
+    }
+
+    private Component applyDisplayName(Component original, String displayName) {
         Style originalStyle = original.style();
 
-        Component display = legacy.deserialize(target.getDisplayName());
+        Component display = legacy.deserialize(displayName);
 
         Component result = display.style(
                 display.style().merge(originalStyle, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)
@@ -122,38 +172,5 @@ public final class ProtocolHook {
         }
 
         return result;
-    }
-
-    private Component replaceNamesInTranslatables(Component original) {
-        return replaceNamesInTranslatables(original, false);
-    }
-
-    private Component replaceNamesInTranslatables(Component original, boolean inTranslatable) {
-        List<Component> newChildren = new ArrayList<>();
-        for (Component child : original.children()) {
-            newChildren.add(replaceNamesInTranslatables(child, inTranslatable));
-        }
-        Component current = original.children(newChildren);
-
-        if (current instanceof TranslatableComponent tr) {
-            List<Component> newArgs = new ArrayList<>();
-            for (Component arg : tr.args()) {
-                newArgs.add(replaceNamesInTranslatables(arg, true));
-            }
-            current = tr.toBuilder().arguments(newArgs).build();
-        }
-
-        if (inTranslatable) {
-            String plain = PLAIN.serialize(current);
-            if (!plain.isEmpty()) {
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (plain.equals(p.getName())) {
-                        return replacePlayerName(current, p);
-                    }
-                }
-            }
-        }
-
-        return current;
     }
 }

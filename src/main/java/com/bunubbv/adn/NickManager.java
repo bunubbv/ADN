@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public final class NickManager {
     private FileConfiguration cfg;
     private final MessageManager locale;
-    private final SqlNickStore store;
+    private final SqlStore store;
 
     private int nickMaxLength;
     private Pattern nickPattern;
@@ -26,7 +26,7 @@ public final class NickManager {
         ERROR_NO_FORMAT_PERMISSION,
     }
 
-    public NickManager(FileConfiguration cfg, MessageManager locale, SqlNickStore store) {
+    public NickManager(FileConfiguration cfg, MessageManager locale, SqlStore store) {
         this.cfg = cfg;
         this.locale = locale;
         this.store = store;
@@ -74,16 +74,16 @@ public final class NickManager {
     public void setCurrent(UUID uuid, String raw) {
         try {
             store.setNick(uuid, raw);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void removeCurrent(UUID uuid) {
         try {
             store.removeNick(uuid);
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
