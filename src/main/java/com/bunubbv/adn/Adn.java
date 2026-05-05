@@ -79,7 +79,7 @@ public final class Adn extends JavaPlugin implements Listener, TabExecutor {
             ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
 
             boolean debug = getConfig().getBoolean("debug", false);
-            new ProtocolHook(this, protocolManager, debug, lastDisplayNames).register();
+            new NickRewriter(this, protocolManager, debug, lastDisplayNames).register();
             getLogger().info("ProtocolLib detected! Packet rewrite enabled.");
         } catch (ClassNotFoundException e) {
             getLogger().warning("ProtocolLib not found. Username replacement requires ProtocolLib.");

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class ProtocolHook {
+public final class NickRewriter {
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
     private static final GsonComponentSerializer GSON = GsonComponentSerializer.gson();
     private final boolean debug;
@@ -36,7 +36,7 @@ public final class ProtocolHook {
     private final ProtocolManager protocolManager;
     private final Map<String, String> lastDisplayNames;
 
-    public ProtocolHook(JavaPlugin plugin, ProtocolManager protocolManager, boolean debug,
+    public NickRewriter(JavaPlugin plugin, ProtocolManager protocolManager, boolean debug,
                         Map<String, String> lastDisplayNames) {
         this.plugin = plugin;
         this.protocolManager = protocolManager;
