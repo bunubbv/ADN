@@ -129,7 +129,7 @@ public final class NickRewriter {
                 newArgs.add(TranslationArgument.component(replaced));
             }
 
-            current = tr.toBuilder().arguments(newArgs).build();
+            current = tr.toBuilder().arguments(newArgs).asComponent();
         }
 
         if (inTranslatable) {
